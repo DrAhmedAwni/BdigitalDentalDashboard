@@ -1,72 +1,184 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { mockLabApi } from "@/services/mockLabApi";
+import {
+  Doctor,
+  Employee,
+  Expense,
+  InventoryMovement,
+  InventoryProduct,
+  Invoice,
+  LabCase,
+  PayrollRecord,
+} from "@/types/lab";
 
-export const queryKeys = {
-  cases: ["cases"] as const,
-  case: (id: string) => ["case", id] as const,
-  doctors: ["doctors"] as const,
-  doctor: (id: string) => ["doctor", id] as const,
-  doctorCases: (id: string) => ["doctor-cases", id] as const,
-  expenses: ["expenses"] as const,
-  invoices: ["invoices"] as const,
-  inventoryProducts: ["inventory-products"] as const,
-  inventoryMovements: ["inventory-movements"] as const,
-  employees: ["employees"] as const,
-  payroll: ["payroll"] as const,
+type SimpleQuery<T> = {
+  data: T | undefined;
+  isLoading: boolean;
 };
 
-export function useCases() {
-  return useQuery({ queryKey: queryKeys.cases, queryFn: () => mockLabApi.listCases() });
+function useSimpleQuery<T>(fetcher: () => Promise<T>): SimpleQuery<T> {
+  const [data, setData] = useState<T | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    fetcher()
+      .then((result) => {
+        if (!cancelled) {
+          setData(result);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetcher]);
+
+  return { data, isLoading };
 }
 
-export function useCase(id: string | undefined) {
-  return useQuery({
-    queryKey: id ? queryKeys.case(id) : ["case", "unknown"],
-    queryFn: () => (id ? mockLabApi.getCaseById(id) : Promise.resolve(null)),
-    enabled: !!id,
-  });
+export function useCases(): SimpleQuery<LabCase[]> {
+  return useSimpleQuery(() => mockLabApi.listCases());
 }
 
-export function useDoctors() {
-  return useQuery({ queryKey: queryKeys.doctors, queryFn: () => mockLabApi.listDoctors() });
+export function useCase(id: string | undefined): SimpleQuery<LabCase | null> {
+  const [data, setData] = useState<LabCase | null | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(!!id);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!id) {
+      setData(null);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    mockLabApi
+      .getCaseById(id)
+      .then((result) => {
+        if (!cancelled) {
+          setData(result);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  return { data: data ?? null, isLoading };
 }
 
-export function useDoctor(id: string | undefined) {
-  return useQuery({
-    queryKey: id ? queryKeys.doctor(id) : ["doctor", "unknown"],
-    queryFn: () => (id ? mockLabApi.getDoctorById(id) : Promise.resolve(null)),
-    enabled: !!id,
-  });
+export function useDoctors(): SimpleQuery<Doctor[]> {
+  return useSimpleQuery(() => mockLabApi.listDoctors());
 }
 
-export function useDoctorCases(doctorId: string | undefined) {
-  return useQuery({
-    queryKey: doctorId ? queryKeys.doctorCases(doctorId) : ["doctor-cases", "unknown"],
-    queryFn: () => (doctorId ? mockLabApi.listDoctorCases(doctorId) : Promise.resolve([])),
-    enabled: !!doctorId,
-  });
+export function useDoctor(id: string | undefined): SimpleQuery<Doctor | null> {
+  const [data, setData] = useState<Doctor | null | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(!!id);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!id) {
+      setData(null);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    mockLabApi
+      .getDoctorById(id)
+      .then((result) => {
+        if (!cancelled) {
+          setData(result);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  return { data: data ?? null, isLoading };
 }
 
-export function useFinance() {
-  const expensesQuery = useQuery({ queryKey: queryKeys.expenses, queryFn: () => mockLabApi.listExpenses() });
-  const invoicesQuery = useQuery({ queryKey: queryKeys.invoices, queryFn: () => mockLabApi.listInvoices() });
+export function useDoctorCases(doctorId: string | undefined): SimpleQuery<LabCase[]> {
+  const [data, setData] = useState<LabCase[] | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(!!doctorId);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!doctorId) {
+      setData([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    mockLabApi
+      .listDoctorCases(doctorId)
+      .then((result) => {
+        if (!cancelled) {
+          setData(result);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [doctorId]);
+
+  return { data: data ?? [], isLoading };
+}
+
+export function useFinance(): {
+  expensesQuery: SimpleQuery<Expense[]>;
+  invoicesQuery: SimpleQuery<Invoice[]>;
+} {
+  const expensesQuery = useSimpleQuery<Expense[]>(() => mockLabApi.listExpenses());
+  const invoicesQuery = useSimpleQuery<Invoice[]>(() => mockLabApi.listInvoices());
   return { expensesQuery, invoicesQuery };
 }
 
-export function useInventory() {
-  const productsQuery = useQuery({
-    queryKey: queryKeys.inventoryProducts,
-    queryFn: () => mockLabApi.listInventoryProducts(),
-  });
-  const movementsQuery = useQuery({
-    queryKey: queryKeys.inventoryMovements,
-    queryFn: () => mockLabApi.listInventoryMovements(),
-  });
+export function useInventory(): {
+  productsQuery: SimpleQuery<InventoryProduct[]>;
+  movementsQuery: SimpleQuery<InventoryMovement[]>;
+} {
+  const productsQuery = useSimpleQuery<InventoryProduct[]>(() => mockLabApi.listInventoryProducts());
+  const movementsQuery = useSimpleQuery<InventoryMovement[]>(() => mockLabApi.listInventoryMovements());
   return { productsQuery, movementsQuery };
 }
 
-export function useEmployees() {
-  const employeesQuery = useQuery({ queryKey: queryKeys.employees, queryFn: () => mockLabApi.listEmployees() });
-  const payrollQuery = useQuery({ queryKey: queryKeys.payroll, queryFn: () => mockLabApi.listPayrollRecords() });
+export function useEmployees(): {
+  employeesQuery: SimpleQuery<Employee[]>;
+  payrollQuery: SimpleQuery<PayrollRecord[]>;
+} {
+  const employeesQuery = useSimpleQuery<Employee[]>(() => mockLabApi.listEmployees());
+  const payrollQuery = useSimpleQuery<PayrollRecord[]>(() => mockLabApi.listPayrollRecords());
   return { employeesQuery, payrollQuery };
 }
