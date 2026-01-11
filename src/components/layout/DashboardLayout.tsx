@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/dental-lab-logo.png";
 
 interface DashboardLayoutProps {
@@ -59,7 +59,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="mx-auto flex max-w-6xl gap-4 px-4 pb-10 pt-4 md:px-6">
           <AppSidebar />
           <main className="flex-1 pb-8">
-            <div className="space-y-6">{children}</div>
+            <div className="space-y-6 animate-fade-in">{children}</div>
           </main>
         </div>
       </div>
