@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/dental-lab-logo.png";
 
 interface DashboardLayoutProps {
@@ -10,20 +9,12 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const { toast } = useToast();
-
   const handleRefresh = () => {
-    toast({
-      title: "Data refresh queued",
-      description: "The dashboard will load the latest lab data once connected.",
-    });
+    console.log("Refresh clicked - wire to Antigravity later");
   };
 
   const handleLogout = () => {
-    toast({
-      title: "Logout placeholder",
-      description: "Connect authentication to enable real logout.",
-    });
+    console.log("Logout clicked - connect authentication later");
   };
 
   return (
