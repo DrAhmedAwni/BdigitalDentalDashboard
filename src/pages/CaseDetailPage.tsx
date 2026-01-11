@@ -4,12 +4,10 @@ import { CardHeader, CardTitle, CardDescription, CardContent } from "@/component
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useCase } from "@/hooks/useLabData";
-import { useToast } from "@/hooks/use-toast";
 
 const CaseDetailPage = () => {
   const { caseId } = useParams();
   const { data: labCase, isLoading } = useCase(caseId);
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -50,16 +48,12 @@ const CaseDetailPage = () => {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() =>
-              toast({ title: "Reopen Case", description: "Connect Antigravity to update real case status." })
-            }
+            onClick={() => console.log("Reopen Case clicked - connect Antigravity later")}
           >
             Reopen
           </Button>
           <Button
-            onClick={() =>
-              toast({ title: "Duplicate Case", description: "This action will be wired to Antigravity later." })
-            }
+            onClick={() => console.log("Duplicate Case clicked - wire to Antigravity later")}
           >
             Duplicate
           </Button>
@@ -109,7 +103,7 @@ const CaseDetailPage = () => {
             <Button
               variant="outline"
               className="w-full justify-between"
-              onClick={() => toast({ title: "Print Ticket", description: "Will trigger a print template via Antigravity." })}
+              onClick={() => console.log("Print Ticket clicked - will trigger print via Antigravity later")}
             >
               Print Ticket<span className="text-xs text-muted-foreground">PDF</span>
             </Button>
@@ -123,7 +117,7 @@ const CaseDetailPage = () => {
             <Button
               variant="outline"
               className="w-full justify-between"
-              onClick={() => toast({ title: "Add Note", description: "Notes will sync once backend is wired." })}
+              onClick={() => console.log("Add Doctor Note clicked - notes will sync once backend is wired")}
             >
               Add Doctor Note<span className="text-xs text-muted-foreground">Coming soon</span>
             </Button>

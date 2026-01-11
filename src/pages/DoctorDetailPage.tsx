@@ -4,13 +4,11 @@ import { CardHeader, CardTitle, CardDescription, CardContent } from "@/component
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDoctor, useDoctorCases } from "@/hooks/useLabData";
-import { useToast } from "@/hooks/use-toast";
 
 const DoctorDetailPage = () => {
   const { doctorId } = useParams();
   const { data: doctor, isLoading } = useDoctor(doctorId);
   const { data: cases, isLoading: casesLoading } = useDoctorCases(doctorId);
-  const { toast } = useToast();
 
   if (isLoading) {
     return (
@@ -37,9 +35,7 @@ const DoctorDetailPage = () => {
           <p className="text-sm text-muted-foreground">{doctor.workplace}</p>
         </div>
         <Button
-          onClick={() =>
-            toast({ title: "Message Doctor", description: "Messaging will be enabled via backend integration." })
-          }
+          onClick={() => console.log("Message Doctor clicked - messaging will be enabled via backend integration")}
         >
           Message
         </Button>

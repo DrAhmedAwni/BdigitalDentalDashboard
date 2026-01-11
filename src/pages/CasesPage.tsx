@@ -6,12 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useCases } from "@/hooks/useLabData";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 
 const CasesPage = () => {
   const { data: cases, isLoading } = useCases();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   return (
     <PageShell>
@@ -20,11 +18,7 @@ const CasesPage = () => {
           <h1 className="text-xl font-semibold tracking-tight">Cases</h1>
           <p className="text-sm text-muted-foreground">Full overview of all lab cases.</p>
         </div>
-        <Button
-          onClick={() =>
-            toast({ title: "Add Case", description: "Connect Antigravity to create real cases.", duration: 3000 })
-          }
-        >
+        <Button onClick={() => console.log("Add Case clicked - connect Antigravity later")}>
           Add Case
         </Button>
       </div>
@@ -115,10 +109,7 @@ const CasesPage = () => {
                             variant="outline"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toast({
-                                title: "Edit Case",
-                                description: "Editing will be enabled after connecting Antigravity.",
-                              });
+                              console.log("Edit Case clicked - wire to Antigravity later");
                             }}
                           >
                             Edit
@@ -128,7 +119,7 @@ const CasesPage = () => {
                             variant="outline"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toast({ title: "Delete Case", description: "Wire this to a real delete later." });
+                              console.log("Delete Case clicked - wire to Antigravity later");
                             }}
                           >
                             Delete

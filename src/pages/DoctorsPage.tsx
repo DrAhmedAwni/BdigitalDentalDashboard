@@ -5,12 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDoctors } from "@/hooks/useLabData";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 
 const DoctorsPage = () => {
   const { data: doctors, isLoading } = useDoctors();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   return (
     <PageShell>
@@ -19,7 +17,7 @@ const DoctorsPage = () => {
           <h1 className="text-xl font-semibold tracking-tight">Doctors</h1>
           <p className="text-sm text-muted-foreground">Manage referring doctors and their contact details.</p>
         </div>
-        <Button onClick={() => toast({ title: "Add Doctor", description: "Will create a doctor via Antigravity." })}>
+        <Button onClick={() => console.log("Add Doctor clicked - will create via Antigravity later")}>
           Add Doctor
         </Button>
       </div>
@@ -73,7 +71,7 @@ const DoctorsPage = () => {
                         variant="outline"
                         onClick={(e) => {
                           e.stopPropagation();
-                          toast({ title: "Edit Doctor", description: "Editing will be wired to Antigravity." });
+                          console.log("Edit Doctor clicked - will be wired to Antigravity");
                         }}
                       >
                         Edit
