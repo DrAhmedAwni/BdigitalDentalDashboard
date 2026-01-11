@@ -276,16 +276,18 @@ const DashboardHome = () => {
                 <p className="text-base font-semibold text-foreground">{profit.toLocaleString()} EGP</p>
               </div>
             </div>
-            <ChartContainer config={chartConfig} className="h-64">
-              <BarChart data={financeData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
-                <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
-              </BarChart>
-            </ChartContainer>
+            <div className="w-full max-w-xl mx-auto">
+              <ChartContainer config={chartConfig} className="h-64 w-full">
+                <BarChart data={financeData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
+                  <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            </div>
           </CardContent>
         </CardShell>
 

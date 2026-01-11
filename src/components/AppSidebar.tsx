@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Home", url: "/", icon: LayoutDashboard },
   { title: "Cases", url: "/cases", icon: FolderKanban },
   { title: "Doctors", url: "/doctors", icon: Stethoscope },
   { title: "Finance", url: "/finance", icon: Wallet2 },

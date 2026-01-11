@@ -4,6 +4,7 @@ import { CardHeader, CardTitle, CardDescription, CardContent } from "@/component
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDoctor, useDoctorCases } from "@/hooks/useLabData";
+import { toast } from "@/components/ui/sonner";
 
 const DoctorDetailPage = () => {
   const { doctorId } = useParams();
@@ -35,7 +36,11 @@ const DoctorDetailPage = () => {
           <p className="text-sm text-muted-foreground">{doctor.workplace}</p>
         </div>
         <Button
-          onClick={() => console.log("Message Doctor clicked - messaging will be enabled via backend integration")}
+          onClick={() =>
+            toast("Message Doctor", {
+              description: "Secure messaging will be enabled via backend integration.",
+            })
+          }
         >
           Message
         </Button>

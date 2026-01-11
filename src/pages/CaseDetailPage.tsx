@@ -4,6 +4,7 @@ import { CardHeader, CardTitle, CardDescription, CardContent } from "@/component
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useCase } from "@/hooks/useLabData";
+import { toast } from "@/components/ui/sonner";
 
 const CaseDetailPage = () => {
   const { caseId } = useParams();
@@ -48,12 +49,16 @@ const CaseDetailPage = () => {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => console.log("Reopen Case clicked - connect Antigravity later")}
+            onClick={() =>
+              toast("Reopen Case", { description: "This will change stage in Antigravity later." })
+            }
           >
             Reopen
           </Button>
           <Button
-            onClick={() => console.log("Duplicate Case clicked - wire to Antigravity later")}
+            onClick={() =>
+              toast("Duplicate Case", { description: "A new case will be created from this one." })
+            }
           >
             Duplicate
           </Button>
@@ -103,7 +108,11 @@ const CaseDetailPage = () => {
             <Button
               variant="outline"
               className="w-full justify-between"
-              onClick={() => console.log("Print Ticket clicked - will trigger print via Antigravity later")}
+              onClick={() =>
+                toast("Print Ticket", {
+                  description: "Will generate a PDF ticket from Antigravity.",
+                })
+              }
             >
               Print Ticket<span className="text-xs text-muted-foreground">PDF</span>
             </Button>
@@ -117,7 +126,11 @@ const CaseDetailPage = () => {
             <Button
               variant="outline"
               className="w-full justify-between"
-              onClick={() => console.log("Add Doctor Note clicked - notes will sync once backend is wired")}
+              onClick={() =>
+                toast("Add Doctor Note", {
+                  description: "Notes will sync once the backend is wired.",
+                })
+              }
             >
               Add Doctor Note<span className="text-xs text-muted-foreground">Coming soon</span>
             </Button>

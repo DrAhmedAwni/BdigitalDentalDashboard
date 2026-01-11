@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/dental-lab-logo.png";
+import { toast } from "@/components/ui/sonner";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -10,11 +11,15 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const handleRefresh = () => {
-    console.log("Refresh clicked - wire to Antigravity later");
+    toast("Refreshing dashboard data", {
+      description: "This will call Antigravity APIs once connected.",
+    });
   };
 
   const handleLogout = () => {
-    console.log("Logout clicked - connect authentication later");
+    toast("Logout requested", {
+      description: "Wire this to your authentication flow later.",
+    });
   };
 
   return (
