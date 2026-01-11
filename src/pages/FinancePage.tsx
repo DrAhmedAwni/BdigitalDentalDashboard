@@ -62,17 +62,19 @@ const FinancePage = () => {
           {loading ? (
             <TableSkeleton />
           ) : (
-            <ChartContainer config={chartConfig} className="h-80">
-              <BarChart data={financeData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} />
-                <Tooltip content={<ChartTooltipContent />} />
-                <Legend />
-                <Bar dataKey="revenue" name="Revenue" fill="var(--color-revenue)" radius={4} />
-                <Bar dataKey="expenses" name="Expenses" fill="var(--color-expenses)" radius={4} />
-              </BarChart>
-            </ChartContainer>
+            <div className="w-full max-w-2xl mx-auto">
+              <ChartContainer config={chartConfig} className="h-80 w-full">
+                <BarChart data={financeData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Legend />
+                  <Bar dataKey="revenue" name="Revenue" fill="var(--color-revenue)" radius={4} />
+                  <Bar dataKey="expenses" name="Expenses" fill="var(--color-expenses)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            </div>
           )}
         </CardContent>
       </CardShell>

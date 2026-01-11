@@ -37,16 +37,18 @@ const InventoryPage = () => {
           {loading ? (
             <TableSkeleton />
           ) : (
-            <ChartContainer config={chartConfig} className="h-80">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" tickLine={false} axisLine={false} hide />
-                <YAxis tickLine={false} axisLine={false} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Legend />
-                <Bar dataKey="quantity" name="Quantity" fill="var(--color-quantity)" radius={4} />
-              </BarChart>
-            </ChartContainer>
+            <div className="w-full max-w-2xl mx-auto">
+              <ChartContainer config={chartConfig} className="h-80 w-full">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" tickLine={false} axisLine={false} hide />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Legend />
+                  <Bar dataKey="quantity" name="Quantity" fill="var(--color-quantity)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            </div>
           )}
         </CardContent>
       </CardShell>

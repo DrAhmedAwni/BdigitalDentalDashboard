@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useCases } from "@/hooks/useLabData";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/ui/sonner";
 
 const CasesPage = () => {
   const { data: cases, isLoading } = useCases();
@@ -18,7 +19,11 @@ const CasesPage = () => {
           <h1 className="text-xl font-semibold tracking-tight">Cases</h1>
           <p className="text-sm text-muted-foreground">Full overview of all lab cases.</p>
         </div>
-        <Button onClick={() => console.log("Add Case clicked - connect Antigravity later")}>
+        <Button
+          onClick={() =>
+            toast("Add Case", { description: "This will open a case creation flow once Antigravity is wired." })
+          }
+        >
           Add Case
         </Button>
       </div>
@@ -77,7 +82,6 @@ const CasesPage = () => {
                       <TableHead>Price</TableHead>
                       <TableHead>Due Date</TableHead>
                       <TableHead>Stage</TableHead>
-                      <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -92,7 +96,6 @@ const CasesPage = () => {
                         <TableCell>{c.priceEgp.toLocaleString()} EGP</TableCell>
                         <TableCell>{c.dueDate}</TableCell>
                         <TableCell>{c.stage}</TableCell>
-                        <TableCell>{c.status}</TableCell>
                         <TableCell className="space-x-1 text-right">
                           <Button
                             size="sm"
@@ -109,7 +112,9 @@ const CasesPage = () => {
                             variant="outline"
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log("Edit Case clicked - wire to Antigravity later");
+                              toast("Edit Case", {
+                                description: "Editing will sync with Antigravity cases later.",
+                              });
                             }}
                           >
                             Edit
@@ -119,7 +124,9 @@ const CasesPage = () => {
                             variant="outline"
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log("Delete Case clicked - wire to Antigravity later");
+                              toast("Delete Case", {
+                                description: "Deletion will call a real API once connected.",
+                              });
                             }}
                           >
                             Delete
