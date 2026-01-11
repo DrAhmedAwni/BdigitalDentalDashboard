@@ -8,6 +8,7 @@ import { Bar, BarChart, CartesianGrid, Legend, XAxis, YAxis } from "recharts";
 const InventoryPage = () => {
   const { productsQuery, movementsQuery } = useInventory();
   const loading = productsQuery.isLoading || movementsQuery.isLoading;
+  const hasError = productsQuery.error || movementsQuery.error;
 
   const chartData = productsQuery.data?.map((p) => ({
     name: p.name,

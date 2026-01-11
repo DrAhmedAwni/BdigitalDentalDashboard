@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/sonner";
 
 const CasesPage = () => {
-  const { data: cases, isLoading } = useCases();
+  const { data: cases, isLoading, error, refetch } = useCases();
   const navigate = useNavigate();
 
   return (

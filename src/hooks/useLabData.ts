@@ -14,19 +14,30 @@ import {
 type SimpleQuery<T> = {
   data: T | undefined;
   isLoading: boolean;
+  error: Error | null;
+  refetch: () => void;
 };
 
 function useSimpleQuery<T>(fetcher: () => Promise<T>): SimpleQuery<T> {
   const [data, setData] = useState<T | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [reloadIndex, setReloadIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
+    setError(null);
+
     fetcher()
       .then((result) => {
         if (!cancelled) {
           setData(result);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err : new Error("Failed to load data"));
         }
       })
       .finally(() => {
@@ -38,9 +49,11 @@ function useSimpleQuery<T>(fetcher: () => Promise<T>): SimpleQuery<T> {
     return () => {
       cancelled = true;
     };
-  }, [fetcher]);
+  }, [reloadIndex]);
 
-  return { data, isLoading };
+  const refetch = () => setReloadIndex((i) => i + 1);
+
+  return { data, isLoading, error, refetch };
 }
 
 export function useCases(): SimpleQuery<LabCase[]> {
@@ -50,6 +63,9 @@ export function useCases(): SimpleQuery<LabCase[]> {
 export function useCase(id: string | undefined): SimpleQuery<LabCase | null> {
   const [data, setData] = useState<LabCase | null | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(!!id);
+  const [error, setError] = useState<Error | null>(null);
+
+  const [reloadIndex, setReloadIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,11 +77,17 @@ export function useCase(id: string | undefined): SimpleQuery<LabCase | null> {
     }
 
     setIsLoading(true);
+    setError(null);
     mockLabApi
       .getCaseById(id)
       .then((result) => {
         if (!cancelled) {
-          setData(result);
+          setData(result ?? null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err : new Error("Failed to load case"));
         }
       })
       .finally(() => {
@@ -77,9 +99,11 @@ export function useCase(id: string | undefined): SimpleQuery<LabCase | null> {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, reloadIndex]);
 
-  return { data: data ?? null, isLoading };
+  const refetch = () => setReloadIndex((i) => i + 1);
+
+  return { data: data ?? null, isLoading, error, refetch };
 }
 
 export function useDoctors(): SimpleQuery<Doctor[]> {
@@ -89,6 +113,8 @@ export function useDoctors(): SimpleQuery<Doctor[]> {
 export function useDoctor(id: string | undefined): SimpleQuery<Doctor | null> {
   const [data, setData] = useState<Doctor | null | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(!!id);
+  const [error, setError] = useState<Error | null>(null);
+  const [reloadIndex, setReloadIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,11 +126,17 @@ export function useDoctor(id: string | undefined): SimpleQuery<Doctor | null> {
     }
 
     setIsLoading(true);
+    setError(null);
     mockLabApi
       .getDoctorById(id)
       .then((result) => {
         if (!cancelled) {
-          setData(result);
+          setData(result ?? null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err : new Error("Failed to load doctor"));
         }
       })
       .finally(() => {
@@ -116,14 +148,18 @@ export function useDoctor(id: string | undefined): SimpleQuery<Doctor | null> {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, reloadIndex]);
 
-  return { data: data ?? null, isLoading };
+  const refetch = () => setReloadIndex((i) => i + 1);
+
+  return { data: data ?? null, isLoading, error, refetch };
 }
 
 export function useDoctorCases(doctorId: string | undefined): SimpleQuery<LabCase[]> {
   const [data, setData] = useState<LabCase[] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(!!doctorId);
+  const [error, setError] = useState<Error | null>(null);
+  const [reloadIndex, setReloadIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -135,11 +171,17 @@ export function useDoctorCases(doctorId: string | undefined): SimpleQuery<LabCas
     }
 
     setIsLoading(true);
+    setError(null);
     mockLabApi
       .listDoctorCases(doctorId)
       .then((result) => {
         if (!cancelled) {
           setData(result);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err : new Error("Failed to load cases"));
         }
       })
       .finally(() => {
@@ -151,9 +193,11 @@ export function useDoctorCases(doctorId: string | undefined): SimpleQuery<LabCas
     return () => {
       cancelled = true;
     };
-  }, [doctorId]);
+  }, [doctorId, reloadIndex]);
 
-  return { data: data ?? [], isLoading };
+  const refetch = () => setReloadIndex((i) => i + 1);
+
+  return { data: data ?? [], isLoading, error, refetch };
 }
 
 export function useFinance(): {

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/sonner";
 
 const DoctorsPage = () => {
-  const { data: doctors, isLoading } = useDoctors();
+  const { data: doctors, isLoading, error, refetch } = useDoctors();
   const navigate = useNavigate();
 
   return (

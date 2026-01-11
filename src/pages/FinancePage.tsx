@@ -9,6 +9,7 @@ const FinancePage = () => {
   const { expensesQuery, invoicesQuery } = useFinance();
 
   const loading = expensesQuery.isLoading || invoicesQuery.isLoading;
+  const hasError = expensesQuery.error || invoicesQuery.error;
 
   const financeData = invoicesQuery.data
     ? invoicesQuery.data.reduce<{ month: string; revenue: number; expenses: number }[]>((acc, inv) => {
