@@ -144,34 +144,43 @@ const DashboardHome = () => {
             <h2 className="text-lg font-semibold tracking-tight">Cases Overview</h2>
             <p className="text-sm text-muted-foreground">Filter and manage all lab cases.</p>
           </div>
-          <div className="flex flex-col gap-2 md:flex-row md:items-center">
-            <Input placeholder="Search by code, patient, or doctor" className="w-full md:w-64" />
-            <div className="flex gap-2">
-              <Select>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Stage" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="delivered">Delivered</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Doctor" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All doctors</SelectItem>
-                  {cases?.map((c) => (
-                    <SelectItem key={c.doctorId} value={c.doctorId}>
-                      {c.doctorName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-2 md:flex-row md:items-center">
+              <Input placeholder="Search by code, patient, or doctor" className="w-full md:w-64" />
+              <div className="flex gap-2">
+                <Select>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="submitted">submitted</SelectItem>
+                    <SelectItem value="Pouring/Scan">Pouring/Scan</SelectItem>
+                    <SelectItem value="Design">Design</SelectItem>
+                    <SelectItem value="Waiting for Confirmation">Waiting for Confirmation</SelectItem>
+                    <SelectItem value="Tryin Printing">Tryin Printing</SelectItem>
+                    <SelectItem value="Tryin Ready to Deliver">Tryin Ready to Deliver</SelectItem>
+                    <SelectItem value="Tryin Delivered">Tryin Delivered</SelectItem>
+                    <SelectItem value="Sintring">Sintring</SelectItem>
+                    <SelectItem value="Stain&Glaze">Stain&Glaze</SelectItem>
+                    <SelectItem value="Final Ready to Deliver">Final Ready to Deliver</SelectItem>
+                    <SelectItem value="Final Delivered">Final Delivered</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Doctor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All doctors</SelectItem>
+                    {cases?.map((c) => (
+                      <SelectItem key={c.doctorId} value={c.doctorId}>
+                        {c.doctorName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
         </div>
 
         {casesLoading ? (

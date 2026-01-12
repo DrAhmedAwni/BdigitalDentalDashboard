@@ -1,10 +1,16 @@
 export type CaseStage =
   | "submitted"
-  | "design"
-  | "production"
-  | "finishing"
-  | "quality_check"
-  | "final_delivered";
+  | "Pouring/Scan"
+  | "Design"
+  | "Waiting for Confirmation"
+  | "Tryin Printing"
+  | "Tryin Ready to Deliver"
+  | "Tryin Delivered"
+  | "Sintring"
+  | "Stain&Glaze"
+  | "Final Ready to Deliver"
+  | "Final Delivered";
+
 
 export interface LabCase {
   id: string; // public.cases.id

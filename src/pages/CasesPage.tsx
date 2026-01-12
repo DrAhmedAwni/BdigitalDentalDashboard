@@ -39,13 +39,22 @@ const CasesPage = () => {
               <Input placeholder="Search by code, patient, or doctor" className="w-full md:w-64" />
               <div className="flex gap-2">
                 <Select>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-40">
                     <SelectValue placeholder="Stage" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="finished">Finished</SelectItem>
+                    <SelectItem value="submitted">submitted</SelectItem>
+                    <SelectItem value="Pouring/Scan">Pouring/Scan</SelectItem>
+                    <SelectItem value="Design">Design</SelectItem>
+                    <SelectItem value="Waiting for Confirmation">Waiting for Confirmation</SelectItem>
+                    <SelectItem value="Tryin Printing">Tryin Printing</SelectItem>
+                    <SelectItem value="Tryin Ready to Deliver">Tryin Ready to Deliver</SelectItem>
+                    <SelectItem value="Tryin Delivered">Tryin Delivered</SelectItem>
+                    <SelectItem value="Sintring">Sintring</SelectItem>
+                    <SelectItem value="Stain&Glaze">Stain&Glaze</SelectItem>
+                    <SelectItem value="Final Ready to Deliver">Final Ready to Deliver</SelectItem>
+                    <SelectItem value="Final Delivered">Final Delivered</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select>
