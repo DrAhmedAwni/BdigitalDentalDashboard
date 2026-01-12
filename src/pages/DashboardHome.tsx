@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,36 +16,78 @@ const DashboardHome = () => {
   const { data: cases, isLoading: casesLoading } = useCases();
   const { expensesQuery, invoicesQuery } = useFinance();
 
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+  const [doctorFilter, setDoctorFilter] = useState<string>("all");
+  const [caseTypeFilter, setCaseTypeFilter] = useState<string>("all");
+  const [materialFilter, setMaterialFilter] = useState<string>("all");
+
   const totalCases = cases?.length ?? 0;
 
-  const totalRevenue = invoicesQuery.data?.reduce((sum, inv) => sum + inv.totalEgp, 0) ?? 0;
-  const totalExpenses = expensesQuery.data?.reduce((sum, exp) => sum + exp.amountEgp, 0) ?? 0;
+  const invoicesWithCase = useMemo(
+    () =>
+      (invoicesQuery.data ?? [])
+        .map((inv) => ({
+          ...inv,
+          relatedCase: (cases ?? []).find((c) => c.caseCode === inv.caseCode),
+        }))
+        .filter((row) => row.relatedCase),
+    [cases, invoicesQuery.data]
+  );
+
+  const filteredInvoices = useMemo(
+    () =>
+      invoicesWithCase.filter(({ relatedCase, issuedAt }) => {
+        const issuedDate = new Date(issuedAt);
+        if (dateFrom && issuedDate < new Date(dateFrom)) return false;
+        if (dateTo && issuedDate > new Date(dateTo)) return false;
+        if (doctorFilter !== "all" && relatedCase!.doctorId !== doctorFilter) return false;
+        if (caseTypeFilter !== "all" && relatedCase!.caseType !== caseTypeFilter) return false;
+        if (materialFilter !== "all" && relatedCase!.material !== materialFilter) return false;
+        return true;
+      }),
+    [invoicesWithCase, dateFrom, dateTo, doctorFilter, caseTypeFilter, materialFilter]
+  );
+
+  const filteredExpenses = useMemo(
+    () =>
+      (expensesQuery.data ?? []).filter((exp) => {
+        const d = new Date(exp.date);
+        if (dateFrom && d < new Date(dateFrom)) return false;
+        if (dateTo && d > new Date(dateTo)) return false;
+        return true;
+      }),
+    [expensesQuery.data, dateFrom, dateTo]
+  );
+
+  const totalRevenue = filteredInvoices.reduce((sum, inv) => sum + inv.totalEgp, 0);
+  const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.amountEgp, 0);
   const profit = totalRevenue - totalExpenses;
 
-  const financeData = invoicesQuery.data
-    ? invoicesQuery.data.reduce<{ month: string; revenue: number; expenses: number }[]>((acc, inv) => {
-        const monthLabel = new Date(inv.issuedAt).toLocaleString("default", { month: "short" });
-        const existing = acc.find((row) => row.month === monthLabel);
-        if (existing) {
-          existing.revenue += inv.totalEgp;
-        } else {
-          acc.push({ month: monthLabel, revenue: inv.totalEgp, expenses: 0 });
-        }
-        return acc;
-      }, [])
-    : [];
+  const financeData = filteredInvoices.reduce<{
+    month: string;
+    revenue: number;
+    expenses: number;
+  }[]>((acc, inv) => {
+    const monthLabel = new Date(inv.issuedAt).toLocaleString("default", { month: "short" });
+    const existing = acc.find((row) => row.month === monthLabel);
+    if (existing) {
+      existing.revenue += inv.totalEgp;
+    } else {
+      acc.push({ month: monthLabel, revenue: inv.totalEgp, expenses: 0 });
+    }
+    return acc;
+  }, []);
 
-  if (expensesQuery.data) {
-    expensesQuery.data.forEach((exp) => {
-      const monthLabel = new Date(exp.date).toLocaleString("default", { month: "short" });
-      const existing = financeData.find((row) => row.month === monthLabel);
-      if (existing) {
-        existing.expenses += exp.amountEgp;
-      } else {
-        financeData.push({ month: monthLabel, revenue: 0, expenses: exp.amountEgp });
-      }
-    });
-  }
+  filteredExpenses.forEach((exp) => {
+    const monthLabel = new Date(exp.date).toLocaleString("default", { month: "short" });
+    const existing = financeData.find((row) => row.month === monthLabel);
+    if (existing) {
+      existing.expenses += exp.amountEgp;
+    } else {
+      financeData.push({ month: monthLabel, revenue: 0, expenses: exp.amountEgp });
+    }
+  });
 
   const chartConfig = {
     revenue: {
@@ -262,6 +305,46 @@ const DashboardHome = () => {
             <CardDescription>Monthly revenue vs expenses (mocked for now).</CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 grid gap-2 md:grid-cols-4 text-xs md:text-sm">
+              <Input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="h-9"
+                placeholder="From"
+              />
+              <Input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="h-9"
+                placeholder="To"
+              />
+              <Select value={doctorFilter} onValueChange={setDoctorFilter}>
+                <SelectTrigger className="h-9 text-xs md:text-sm">
+                  <SelectValue placeholder="Doctor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All doctors</SelectItem>
+                  {Array.from(new Map((cases ?? []).map((c) => [c.doctorId, c])).values()).map((c) => (
+                    <SelectItem key={c.doctorId} value={c.doctorId}>
+                      {c.doctorName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={caseTypeFilter} onValueChange={setCaseTypeFilter}>
+                <SelectTrigger className="h-9 text-xs md:text-sm">
+                  <SelectValue placeholder="Case type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value="final">Final</SelectItem>
+                  <SelectItem value="try-in">Try-in</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="mb-4 grid grid-cols-3 gap-3 text-sm">
               <div>
                 <p className="text-xs text-muted-foreground">Total Revenue</p>
@@ -290,6 +373,7 @@ const DashboardHome = () => {
             </div>
           </CardContent>
         </CardShell>
+
 
         <CardShell>
           <CardHeader>
