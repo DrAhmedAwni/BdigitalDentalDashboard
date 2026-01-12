@@ -1,40 +1,82 @@
+import { useMemo, useState } from "react";
 import { PageShell, CardShell, TableSkeleton } from "@/components/layout/PageShell";
 import { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useFinance } from "@/hooks/useLabData";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useCases, useFinance } from "@/hooks/useLabData";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from "recharts";
 
 const FinancePage = () => {
+  const { data: cases } = useCases();
   const { expensesQuery, invoicesQuery } = useFinance();
+
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+  const [doctorFilter, setDoctorFilter] = useState<string>("all");
+  const [caseTypeFilter, setCaseTypeFilter] = useState<string>("all");
+  const [materialFilter, setMaterialFilter] = useState<string>("all");
 
   const loading = expensesQuery.isLoading || invoicesQuery.isLoading;
   const hasError = expensesQuery.error || invoicesQuery.error;
 
-  const financeData = invoicesQuery.data
-    ? invoicesQuery.data.reduce<{ month: string; revenue: number; expenses: number }[]>((acc, inv) => {
-        const monthLabel = new Date(inv.issuedAt).toLocaleString("default", { month: "short" });
-        const existing = acc.find((row) => row.month === monthLabel);
-        if (existing) {
-          existing.revenue += inv.totalEgp;
-        } else {
-          acc.push({ month: monthLabel, revenue: inv.totalEgp, expenses: 0 });
-        }
-        return acc;
-      }, [])
-    : [];
+  const invoicesWithCase = useMemo(
+    () =>
+      (invoicesQuery.data ?? [])
+        .map((inv) => ({
+          ...inv,
+          relatedCase: (cases ?? []).find((c) => c.caseCode === inv.caseCode),
+        }))
+        .filter((row) => row.relatedCase),
+    [cases, invoicesQuery.data]
+  );
 
-  if (expensesQuery.data) {
-    expensesQuery.data.forEach((exp) => {
-      const monthLabel = new Date(exp.date).toLocaleString("default", { month: "short" });
-      const existing = financeData.find((row) => row.month === monthLabel);
-      if (existing) {
-        existing.expenses += exp.amountEgp;
-      } else {
-        financeData.push({ month: monthLabel, revenue: 0, expenses: exp.amountEgp });
-      }
-    });
-  }
+  const filteredInvoices = useMemo(
+    () =>
+      invoicesWithCase.filter(({ relatedCase, issuedAt }) => {
+        const issuedDate = new Date(issuedAt);
+        if (dateFrom && issuedDate < new Date(dateFrom)) return false;
+        if (dateTo && issuedDate > new Date(dateTo)) return false;
+        if (doctorFilter !== "all" && relatedCase!.doctorId !== doctorFilter) return false;
+        if (caseTypeFilter !== "all" && relatedCase!.caseType !== caseTypeFilter) return false;
+        if (materialFilter !== "all" && relatedCase!.material !== materialFilter) return false;
+        return true;
+      }),
+    [invoicesWithCase, dateFrom, dateTo, doctorFilter, caseTypeFilter, materialFilter]
+  );
+
+  const filteredExpenses = useMemo(
+    () =>
+      (expensesQuery.data ?? []).filter((exp) => {
+        const d = new Date(exp.date);
+        if (dateFrom && d < new Date(dateFrom)) return false;
+        if (dateTo && d > new Date(dateTo)) return false;
+        return true;
+      }),
+    [expensesQuery.data, dateFrom, dateTo]
+  );
+
+  const financeData = filteredInvoices.reduce<{ month: string; revenue: number; expenses: number }[]>((acc, inv) => {
+    const monthLabel = new Date(inv.issuedAt).toLocaleString("default", { month: "short" });
+    const existing = acc.find((row) => row.month === monthLabel);
+    if (existing) {
+      existing.revenue += inv.totalEgp;
+    } else {
+      acc.push({ month: monthLabel, revenue: inv.totalEgp, expenses: 0 });
+    }
+    return acc;
+  }, []);
+
+  filteredExpenses.forEach((exp) => {
+    const monthLabel = new Date(exp.date).toLocaleString("default", { month: "short" });
+    const existing = financeData.find((row) => row.month === monthLabel);
+    if (existing) {
+      existing.expenses += exp.amountEgp;
+    } else {
+      financeData.push({ month: monthLabel, revenue: 0, expenses: exp.amountEgp });
+    }
+  });
 
   const chartConfig = {
     revenue: {
@@ -60,6 +102,46 @@ const FinancePage = () => {
           <CardDescription>Revenue vs expenses based on mock transactions.</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 grid gap-2 md:grid-cols-4 text-xs md:text-sm">
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="h-9"
+              placeholder="From"
+            />
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="h-9"
+              placeholder="To"
+            />
+            <Select value={doctorFilter} onValueChange={setDoctorFilter}>
+              <SelectTrigger className="h-9 text-xs md:text-sm">
+                <SelectValue placeholder="Doctor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All doctors</SelectItem>
+                {Array.from(new Map((cases ?? []).map((c) => [c.doctorId, c])).values()).map((c) => (
+                  <SelectItem key={c.doctorId} value={c.doctorId}>
+                    {c.doctorName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={caseTypeFilter} onValueChange={setCaseTypeFilter}>
+              <SelectTrigger className="h-9 text-xs md:text-sm">
+                <SelectValue placeholder="Case type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All types</SelectItem>
+                <SelectItem value="final">Final</SelectItem>
+                <SelectItem value="try-in">Try-in</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {loading ? (
             <TableSkeleton />
           ) : (
