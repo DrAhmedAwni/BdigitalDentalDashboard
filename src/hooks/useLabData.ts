@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { mockLabApi } from "@/services/mockLabApi";
+import { supabaseLabApi } from "@/services/supabaseLabApi";
 import {
   Doctor,
   Employee,
@@ -57,7 +57,7 @@ function useSimpleQuery<T>(fetcher: () => Promise<T>): SimpleQuery<T> {
 }
 
 export function useCases(): SimpleQuery<LabCase[]> {
-  return useSimpleQuery(() => mockLabApi.listCases());
+  return useSimpleQuery(() => supabaseLabApi.listCases());
 }
 
 export function useCase(id: string | undefined): SimpleQuery<LabCase | null> {
@@ -78,7 +78,7 @@ export function useCase(id: string | undefined): SimpleQuery<LabCase | null> {
 
     setIsLoading(true);
     setError(null);
-    mockLabApi
+    supabaseLabApi
       .getCaseById(id)
       .then((result) => {
         if (!cancelled) {
@@ -107,7 +107,7 @@ export function useCase(id: string | undefined): SimpleQuery<LabCase | null> {
 }
 
 export function useDoctors(): SimpleQuery<Doctor[]> {
-  return useSimpleQuery(() => mockLabApi.listDoctors());
+  return useSimpleQuery(() => supabaseLabApi.listDoctors());
 }
 
 export function useDoctor(id: string | undefined): SimpleQuery<Doctor | null> {
@@ -127,7 +127,7 @@ export function useDoctor(id: string | undefined): SimpleQuery<Doctor | null> {
 
     setIsLoading(true);
     setError(null);
-    mockLabApi
+    supabaseLabApi
       .getDoctorById(id)
       .then((result) => {
         if (!cancelled) {
@@ -172,7 +172,7 @@ export function useDoctorCases(doctorId: string | undefined): SimpleQuery<LabCas
 
     setIsLoading(true);
     setError(null);
-    mockLabApi
+    supabaseLabApi
       .listDoctorCases(doctorId)
       .then((result) => {
         if (!cancelled) {
@@ -204,8 +204,8 @@ export function useFinance(): {
   expensesQuery: SimpleQuery<Expense[]>;
   invoicesQuery: SimpleQuery<Invoice[]>;
 } {
-  const expensesQuery = useSimpleQuery<Expense[]>(() => mockLabApi.listExpenses());
-  const invoicesQuery = useSimpleQuery<Invoice[]>(() => mockLabApi.listInvoices());
+  const expensesQuery = useSimpleQuery<Expense[]>(() => supabaseLabApi.listExpenses());
+  const invoicesQuery = useSimpleQuery<Invoice[]>(() => supabaseLabApi.listInvoices());
   return { expensesQuery, invoicesQuery };
 }
 
@@ -213,8 +213,8 @@ export function useInventory(): {
   productsQuery: SimpleQuery<InventoryProduct[]>;
   movementsQuery: SimpleQuery<InventoryMovement[]>;
 } {
-  const productsQuery = useSimpleQuery<InventoryProduct[]>(() => mockLabApi.listInventoryProducts());
-  const movementsQuery = useSimpleQuery<InventoryMovement[]>(() => mockLabApi.listInventoryMovements());
+  const productsQuery = useSimpleQuery<InventoryProduct[]>(() => supabaseLabApi.listInventoryProducts());
+  const movementsQuery = useSimpleQuery<InventoryMovement[]>(() => supabaseLabApi.listInventoryMovements());
   return { productsQuery, movementsQuery };
 }
 
@@ -222,7 +222,7 @@ export function useEmployees(): {
   employeesQuery: SimpleQuery<Employee[]>;
   payrollQuery: SimpleQuery<PayrollRecord[]>;
 } {
-  const employeesQuery = useSimpleQuery<Employee[]>(() => mockLabApi.listEmployees());
-  const payrollQuery = useSimpleQuery<PayrollRecord[]>(() => mockLabApi.listPayrollRecords());
+  const employeesQuery = useSimpleQuery<Employee[]>(() => supabaseLabApi.listEmployees());
+  const payrollQuery = useSimpleQuery<PayrollRecord[]>(() => supabaseLabApi.listPayrollRecords());
   return { employeesQuery, payrollQuery };
 }
