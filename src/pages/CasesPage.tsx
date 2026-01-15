@@ -7,10 +7,31 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useCases } from "@/hooks/useLabData";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/sonner";
+import { EditCaseDialog } from "@/components/EditCaseDialog";
+import { useState } from "react";
+import { LabCase } from "@/types/lab";
+import { supabaseLabApi } from "@/services/supabaseLabApi";
 
 const CasesPage = () => {
   const { data: cases, isLoading, error, refetch } = useCases();
   const navigate = useNavigate();
+  const [editingCase, setEditingCase] = useState<LabCase | null>(null);
+
+  const handleSaveCase = async (updates: Partial<LabCase>) => {
+    if (!editingCase) return;
+
+    try {
+      await supabaseLabApi.updateCase(editingCase.id, updates);
+      toast.success("Case updated successfully", {
+        description: `${editingCase.caseCode} has been updated.`,
+      });
+      refetch(); // Refresh the cases list
+    } catch (error) {
+      toast.error("Failed to update case", {
+        description: error instanceof Error ? error.message : "Please try again.",
+      });
+    }
+  };
 
   return (
     <PageShell>
@@ -121,9 +142,7 @@ const CasesPage = () => {
                             variant="outline"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toast("Edit Case", {
-                                description: "Editing will sync with Antigravity cases later.",
-                              });
+                              setEditingCase(c);
                             }}
                           >
                             Edit
@@ -183,6 +202,16 @@ const CasesPage = () => {
           )}
         </CardContent>
       </CardShell>
+
+      {/* Edit Case Dialog */}
+      {editingCase && (
+        <EditCaseDialog
+          caseData={editingCase}
+          open={!!editingCase}
+          onOpenChange={(open) => !open && setEditingCase(null)}
+          onSave={handleSaveCase}
+        />
+      )}
     </PageShell>
   );
 };

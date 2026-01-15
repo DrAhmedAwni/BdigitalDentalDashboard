@@ -160,6 +160,42 @@ export const supabaseLabApi = {
         return data ? mapCaseFromDb(data) : null;
     },
 
+    async updateCase(id: string, updates: Partial<LabCase>): Promise<LabCase | null> {
+        // Convert camelCase to snake_case for database
+        const dbUpdates: any = {};
+
+        if (updates.material !== undefined) dbUpdates.material = updates.material;
+        if (updates.units !== undefined) dbUpdates.units = updates.units;
+        if (updates.priceEgp !== undefined) dbUpdates.price_egp = updates.priceEgp;
+        if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate;
+        if (updates.stage !== undefined) dbUpdates.stage = updates.stage;
+        if (updates.shade !== undefined) dbUpdates.shade = updates.shade;
+        if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+
+        // Always update the updated_at timestamp
+        dbUpdates.updated_at = new Date().toISOString();
+
+        const { data, error } = await supabase
+            .from("cases")
+            .update(dbUpdates)
+            .eq("id", id)
+            .select(`
+        *,
+        doctors (
+          full_name,
+          doctor_code
+        )
+      `)
+            .single();
+
+        if (error) {
+            console.error("Error updating case:", error);
+            throw new Error(`Failed to update case: ${error.message}`);
+        }
+
+        return data ? mapCaseFromDb(data) : null;
+    },
+
     async listDoctors(): Promise<Doctor[]> {
         const { data, error } = await supabase
             .from("doctors")
@@ -276,10 +312,13 @@ export const supabaseLabApi = {
 
                 const totalQty = movesError ? 0 : (moves || []).reduce((sum, m) => sum + m.qty, 0);
 
+                // inv_products is an array, get first element
+                const product = Array.isArray(variant.inv_products) ? variant.inv_products[0] : variant.inv_products;
+
                 return {
                     id: variant.id,
-                    name: variant.variant_name || variant.inv_products?.name || "Unknown",
-                    category: variant.inv_products?.category || "general",
+                    name: variant.variant_name || product?.name || "Unknown",
+                    category: product?.category || "general",
                     unitPriceEgp: 0, // Would need price data from another table
                     quantityInStock: totalQty,
                     location: "Main Storage",

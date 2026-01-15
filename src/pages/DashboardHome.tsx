@@ -10,17 +10,38 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { useCases, useFinance } from "@/hooks/useLabData";
 import { PageShell, CardShell, TableSkeleton } from "@/components/layout/PageShell";
+import { EditCaseDialog } from "@/components/EditCaseDialog";
+import { LabCase } from "@/types/lab";
+import { supabaseLabApi } from "@/services/supabaseLabApi";
+import { toast } from "@/components/ui/sonner";
 
 const DashboardHome = () => {
   const navigate = useNavigate();
-  const { data: cases, isLoading: casesLoading } = useCases();
+  const { data: cases, isLoading: casesLoading, refetch } = useCases();
   const { expensesQuery, invoicesQuery } = useFinance();
+  const [editingCase, setEditingCase] = useState<LabCase | null>(null);
 
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
   const [doctorFilter, setDoctorFilter] = useState<string>("all");
   const [caseTypeFilter, setCaseTypeFilter] = useState<string>("all");
   const [materialFilter, setMaterialFilter] = useState<string>("all");
+
+  const handleSaveCase = async (updates: Partial<LabCase>) => {
+    if (!editingCase) return;
+
+    try {
+      await supabaseLabApi.updateCase(editingCase.id, updates);
+      toast.success("Case updated successfully", {
+        description: `${editingCase.caseCode} has been updated.`,
+      });
+      refetch();
+    } catch (error) {
+      toast.error("Failed to update case", {
+        description: error instanceof Error ? error.message : "Please try again.",
+      });
+    }
+  };
 
   const totalCases = cases?.length ?? 0;
 
@@ -144,43 +165,43 @@ const DashboardHome = () => {
             <h2 className="text-lg font-semibold tracking-tight">Cases Overview</h2>
             <p className="text-sm text-muted-foreground">Filter and manage all lab cases.</p>
           </div>
-            <div className="flex flex-col gap-2 md:flex-row md:items-center">
-              <Input placeholder="Search by code, patient, or doctor" className="w-full md:w-64" />
-              <div className="flex gap-2">
-                <Select>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="submitted">submitted</SelectItem>
-                    <SelectItem value="Pouring/Scan">Pouring/Scan</SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Waiting for Confirmation">Waiting for Confirmation</SelectItem>
-                    <SelectItem value="Tryin Printing">Tryin Printing</SelectItem>
-                    <SelectItem value="Tryin Ready to Deliver">Tryin Ready to Deliver</SelectItem>
-                    <SelectItem value="Tryin Delivered">Tryin Delivered</SelectItem>
-                    <SelectItem value="Sintring">Sintring</SelectItem>
-                    <SelectItem value="Stain&Glaze">Stain&Glaze</SelectItem>
-                    <SelectItem value="Final Ready to Deliver">Final Ready to Deliver</SelectItem>
-                    <SelectItem value="Final Delivered">Final Delivered</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select>
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Doctor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All doctors</SelectItem>
-                    {cases?.map((c) => (
-                      <SelectItem key={c.doctorId} value={c.doctorId}>
-                        {c.doctorName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="flex flex-col gap-2 md:flex-row md:items-center">
+            <Input placeholder="Search by code, patient, or doctor" className="w-full md:w-64" />
+            <div className="flex gap-2">
+              <Select>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Stage" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="submitted">submitted</SelectItem>
+                  <SelectItem value="Pouring/Scan">Pouring/Scan</SelectItem>
+                  <SelectItem value="Design">Design</SelectItem>
+                  <SelectItem value="Waiting for Confirmation">Waiting for Confirmation</SelectItem>
+                  <SelectItem value="Tryin Printing">Tryin Printing</SelectItem>
+                  <SelectItem value="Tryin Ready to Deliver">Tryin Ready to Deliver</SelectItem>
+                  <SelectItem value="Tryin Delivered">Tryin Delivered</SelectItem>
+                  <SelectItem value="Sintring">Sintring</SelectItem>
+                  <SelectItem value="Stain&Glaze">Stain&Glaze</SelectItem>
+                  <SelectItem value="Final Ready to Deliver">Final Ready to Deliver</SelectItem>
+                  <SelectItem value="Final Delivered">Final Delivered</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Doctor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All doctors</SelectItem>
+                  {cases?.map((c) => (
+                    <SelectItem key={c.doctorId} value={c.doctorId}>
+                      {c.doctorName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
         </div>
 
         {casesLoading ? (
@@ -234,6 +255,7 @@ const DashboardHome = () => {
                             variant="outline"
                             onClick={(e) => {
                               e.stopPropagation();
+                              setEditingCase(item);
                             }}
                           >
                             Edit
@@ -293,6 +315,7 @@ const DashboardHome = () => {
                           variant="outline"
                           onClick={(e) => {
                             e.stopPropagation();
+                            setEditingCase(item);
                           }}
                         >
                           Edit
@@ -409,6 +432,16 @@ const DashboardHome = () => {
           </CardContent>
         </CardShell>
       </section>
+
+      {/* Edit Case Dialog */}
+      {editingCase && (
+        <EditCaseDialog
+          caseData={editingCase}
+          open={!!editingCase}
+          onOpenChange={(open) => !open && setEditingCase(null)}
+          onSave={handleSaveCase}
+        />
+      )}
     </PageShell>
   );
 };

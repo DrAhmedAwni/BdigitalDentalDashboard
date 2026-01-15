@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import logo from "@/assets/dental-lab-logo.png";
 import { toast } from "@/components/ui/sonner";
 
@@ -10,6 +12,8 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const navigate = useNavigate();
+
   const handleRefresh = () => {
     toast("Refreshing dashboard data", {
       description: "This will call Antigravity APIs once connected.",
@@ -42,6 +46,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Total Cases</span>
                 <span className="text-base font-semibold text-foreground">28</span>
               </div>
+              <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+                <Home className="h-4 w-4 md:mr-1" />
+                <span className="hidden md:inline">Home</span>
+              </Button>
               <Button variant="outline" size="sm" onClick={handleRefresh}>
                 Refresh
               </Button>
